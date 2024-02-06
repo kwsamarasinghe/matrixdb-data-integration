@@ -1,0 +1,79 @@
+{
+	"release": {
+		"data": "4.0",
+		"ui": "2.0",
+		"api": "2.0"
+	},
+	"dependencies" : {
+		"meta": {
+			"ontologies": [
+				{
+					"go": "1"
+				},
+				{
+					"uberon": "2"
+				},
+				{
+					"psimi": "6"
+				}
+			],
+			"source": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"core": {
+			"version": "2024_01",
+			"raw": "/scratch/PIG/matrix-db/data-integration/data/custom_biomolecules.tsv",
+			"source": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb"
+			},
+			"target": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"uniprot": {
+			"version": "2023_08",
+			"source": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"intact": {
+			"version": "2023_08",
+			"source": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"connection": "mongodb://localhost:27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"matrisome": ""
+	},
+	"pipelines": {
+		"meta": "src.matrixdb.pipelines.build.load_meta_data"
+	},
+	"log": {
+		"location" : "/scratch/PIG/matrix-db/data-integration/logs/"
+	}
+}

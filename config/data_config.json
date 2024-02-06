@@ -1,0 +1,128 @@
+{
+  "bio_molecules" : "/scratch/PIG/dev/bitbucket/matrix-db-data-integration/data/Custom_MatrixDB_biomolecules.tsv",
+  "protein_ECM" : "/scratch/PIG/dev/bitbucket/matrix-db-data-integration/data/proteins_ECM.csv",
+  "protein_Membrane" : "/scratch/PIG/dev/bitbucket/matrix-db-data-integration/data/proteins_Membrane.csv",
+  "protein_Secreted" : "/scratch/PIG/dev/bitbucket/matrix-db-data-integration/data/proteins_Secreted.csv",
+  "matrisome_human" : "/scratch/PIG/matrix-db/data/external/matrisome/matrisome_human.tsv",
+  "matrisome_mouse" : "/scratch/PIG/matrix-db/data/external/matrisome/matrisome_mouse.tsv",
+  "interactions" : "/scratch/PIG/dev/bitbucket/matrix-db-data-integration/data/matrixdb_FULL.tab",
+
+  "ace" : {
+    "location" : "/scratch/PIG/dev/bitbucket/matrix-db-data-integration/data/matrixdb_3.5/",
+    "bio_molecules" : [
+      "gags",
+      "multsHuman",
+      "multsMouse",
+      "multsOther",
+      "pfrags",
+      "universalBiomols"
+    ],
+    "external_biomolecules" : [
+      "trembl_190107",
+      "uniprot_190104"
+    ],
+    "associations" : [
+      "from2010_Associations_180129",
+      "inferredAssociations_190111"
+    ],
+    "experiments" : [
+      "from2010_Experiments_180502",
+      "matrixdbCurationFromIntact_190111",
+      "ECMSecreted_intact_190111"
+    ],
+    "expressions" : [
+      "expAtlas_Human_190104",
+      "expAtlas_Mouse_190104"
+    ],
+    "orthologs" : [
+      "orthologs_190111"
+    ],
+    "species" : [
+      "specieSpecial"
+    ],
+    "external" : {
+      "Keywrd" : "keywords_190104",
+      "GO" :"GO_190104",
+      "InterPro": "interpro_190104",
+      "MI" : "MI_190104",
+      "MOD" : "MOD_180117",
+      "PDB" : "pdb_190104",
+      "Pfam" : "pfam_190104",
+      "matrisome" : "matrisome_190104",
+      "pubmed": [
+        "pmidsFilled_consolidated_190111_only_publications"
+
+      ]
+    }
+  },
+  "matrixdb_core": {
+    "associations": "/scratch/PIG/data/matrixdb/data_from_prod/matrixdb_3.5/",
+    "biomolecules": {
+      "file":"/scratch/PIG/matrix-db/data/core/custom_biomolecules.tsv"
+    }
+  },
+  "parsed" : {
+    "location" : "./src/matrixdb/parsed",
+    "intact" : "./src/matrixdb/parsed/intact/full/"
+  },
+  "external": {
+    "intact" : {
+      "location" : "/scratch/PIG/matrix-db/data/external/intact/oct-2023/",
+      "new_files_from_intact" : {
+        "version" : "",
+        "file" : "/scratch/PIG/matrix-db/data/matrixdb-3.5/matrixdb-intact-files-sep-2022"
+      }
+    },
+    "matrisome" : {
+      "file": "/scratch/PIG/matrix-db/data/external/matrisome/proteomics_matrisome.tsv",
+      "tissue_taxonomy": "/scratch/PIG/matrix-db/data/external/matrisome/tissues_taxonomies.csv",
+      "sample_taxonomy": "/scratch/PIG/matrix-db/data/external/matrisome/samples_taxonomies.tsv"
+    },
+    "uniprot" : {
+      "input_location" : "/scratch/PIG/matrix-db/data/external/uniprot/",
+      "output_location" : "./src/matrixdb/parsed/uniprot/"
+    },
+    "trembl" : {
+      "download_location" : "./src/matrixdb/downloads/trembl/"
+    },
+    "uniprot_keywords" : {
+      "file": "/scratch/PIG/matrix-db/data/external/uniprot/keywords/keywords_all_2023_08_01.json",
+      "downloaded": "01-08-2023"
+    },
+    "psimi" : {
+      "file": "/scratch/PIG/matrix-db/data/external/ontologies/mi/mi.owl",
+      "downloaded": "18-08-2023"
+    },
+    "bto" : {
+      "file": "/scratch/PIG/matrix-db/data/external/ontologies/bto/bto.owl",
+      "downloaded": "31-08-2023"
+    },
+    "go" : {
+      "file": "/scratch/PIG/matrix-db/data/external/ontologies/go/go-plus.owl",
+      "downloaded": "15-11-2023"
+    },
+    "uberon": {
+      "file": "/scratch/PIG/matrix-db/data/external/ontologies/uberon/uberon.owl"
+    },
+    "bgee": {
+      "input_location": "/scratch/PIG/matrix-db/data/external/bgee/Homo_sapiens_RNA-Seq_read_counts_TPM_FPKM/",
+      "downloaded": "28-01-2024"
+    },
+    "ppi": {
+      "file": "/scratch/PIG/matrix-db/data/external/ppi-predictions/ecm_human_20230925_KS_SRB.IID_PPIs_all.gtex_tissues.txt"
+    },
+    "interpro" : {
+      "file": "/scratch/PIG/matrix-db/data/external/ontologies/interpro/entry.list",
+      "downloaded": "30-01-2024"
+    }
+  },
+
+  "dist": {
+    "memgraph": {
+      "location": "/scratch/PIG/matrix-db/data/dist/memgraph/matrixdb-2023.12/"
+    },
+    "mongodb": {
+      "name": "matrixdb-4_0-pre-prod"
+    }
+  }
+}

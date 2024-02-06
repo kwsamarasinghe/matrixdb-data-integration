@@ -1,0 +1,33 @@
+{
+	"release": {
+		"data": "4.0",
+		"ui": "2.0",
+		"api": "2.0"
+	},
+	"dependencies" : {
+		"meta": {
+			"go": "1",
+			"uberon": "2",
+			"psimi": "6"
+		},
+		"uniprot": "",
+		"intact": "",
+		"matrisome": ""
+	},
+	"pipelines": {
+		"meta": "src.matrixdb.pipelines.build.load_meta_data"
+	},
+	"source": {
+		"type": "database",
+		"connection": "mongodb://localhost:27018",
+		"database": "matrixdb-data-fabric"
+	},
+	"target": {
+		"type": "database",
+		"connection": "mongodb://localhost:27018",
+		"database": "matrixdb_4_0"
+	},
+	"log": {
+		"location" : "/scratch/PIG/matrix-db/data-integration/logs/"
+	}
+}
