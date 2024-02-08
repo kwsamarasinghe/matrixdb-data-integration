@@ -1,7 +1,6 @@
 import logging
 import time
 
-from src.matrixdb.pipeline_manager.connection_provider import get_connection
 
 '''
 Pipeline for meta data loading
@@ -333,18 +332,31 @@ def load_uniprot_keywords(source, target):
         })
 
 
-def execute(config):
-    source_connection = config["source"]["connection"]
-    source_database = config["source"]["database"]
-    source = get_connection(source_connection, source_database)
+def execute(config, database_manager):
 
-    target_connection = config["target"]["connection"]
-    target_database = config["target"]["database"]
-    target = get_connection(target_connection, target_database)
+    pipeline_config = config["dependencies"]["meta"]
+    source_host = pipeline_config["source"]["host"]
+    source_port = pipeline_config["source"]["port"]
+    source_database = pipeline_config["source"]["database"]
 
-    load_psimi(source, target)
-    load_go(source, target)
-    load_uberon(source, target)
-    load_pubmed(source, target)
-    load_bto(source, target)
-    load_uniprot_keywords(source, target)
+    target_host = pipeline_config["target"]["host"]
+    target_port = pipeline_config["target"]["port"]
+    target_database = pipeline_config["target"]["database"]
+
+    source_connection = database_manager.get_connection(
+        database_name=source_database,
+        host=source_host,
+        port=source_port
+    )
+    target_connection = database_manager.get_connection(
+        database_name=target_database,
+        host=target_host,
+        port=target_port
+    )
+
+    load_psimi(source_connection, target_connection)
+    load_go(source_connection, target_connection)
+    load_uberon(source_connection, target_connection)
+    load_pubmed(source_connection, target_connection)
+    load_bto(source_connection, target_connection)
+    load_uniprot_keywords(source_connection, target_connection)
