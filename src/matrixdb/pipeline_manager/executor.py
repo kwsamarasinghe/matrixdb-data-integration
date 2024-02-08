@@ -7,13 +7,15 @@ import time
 import argparse
 import logging
 
+from src.matrixdb.pipeline_manager.database_manager import DatabaseManager
 
-def execute(pipeline_name, config):
+
+def execute(pipeline_name, config, database_manager):
     # Load pipeline function
-    pipeline_module_name = config["pipelines"][pipeline_name]
+    pipeline_module_name = config["pipelines"][pipeline_name]["module"]
     pipeline_module = importlib.import_module(pipeline_module_name)
     pipeline_method = getattr(pipeline_module, 'execute')
-    pipeline_method(config)
+    pipeline_method(config, database_manager)
 
 
 def main():
@@ -46,7 +48,9 @@ def main():
         logging.StreamHandler(),
         logging.FileHandler(f'{config["log"]["location"]}/{pipeline_name}_{time.time()}.log')])
 
-    execute(pipeline_name, config)
+    # Initialize the database connections
+    database_manager = DatabaseManager()
+    execute(pipeline_name, config, database_manager)
 
 
 if __name__ == "__main__":

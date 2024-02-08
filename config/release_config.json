@@ -19,12 +19,14 @@
 			],
 			"source": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb-data-fabric"
 			},
 			"target": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb_4_0"
 			}
 		},
@@ -33,12 +35,14 @@
 			"raw": "/scratch/PIG/matrix-db/data-integration/data/custom_biomolecules.tsv",
 			"source": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
-				"database": "matrixdb"
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-core"
 			},
 			"target": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb_4_0"
 			}
 		},
@@ -46,12 +50,14 @@
 			"version": "2023_08",
 			"source": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb-data-fabric"
 			},
 			"target": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb_4_0"
 			}
 		},
@@ -59,19 +65,52 @@
 			"version": "2023_08",
 			"source": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb-data-fabric"
 			},
 			"target": {
 				"type": "database",
-				"connection": "mongodb://localhost:27018",
+				"host": "localhost:27018",
+				"port": "27018",
 				"database": "matrixdb_4_0"
 			}
 		},
-		"matrisome": ""
+		"matrisome_proteins": {
+			"version": "2018",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		}
 	},
 	"pipelines": {
-		"meta": "src.matrixdb.pipelines.build.load_meta_data"
+		"meta": {
+			"module": "src.matrixdb.pipelines.build.load.load_meta_data"
+		},
+		"uniprot": {
+			"module": "src.matrixdb.pipelines.build.load.load_uniprot_data"
+		},
+		"core": {
+			"module": "src.matrixdb.pipelines.build.load.load_core_data"
+		},
+		"matrisome_proteins": {
+			"module": "src.matrixdb.pipelines.build.load.load_matrisome_protein_data"
+		},
+		"intact": {
+			"module": "src.matrixdb.pipelines.build.load.load_intact_data"
+		},
+		"missing_proteins": {
+			"module": "scr.matrixdb.pipelines.build.load.load_missing_proteins"
+		}
 	},
 	"log": {
 		"location" : "/scratch/PIG/matrix-db/data-integration/logs/"
