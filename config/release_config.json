@@ -109,7 +109,19 @@
 			"module": "src.matrixdb.pipelines.build.load.load_intact_data"
 		},
 		"missing_proteins": {
-			"module": "scr.matrixdb.pipelines.build.load.load_missing_proteins"
+			"module": "src.matrixdb.pipelines.build.load.load_missing_proteins",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
 		}
 	},
 	"log": {
