@@ -5,7 +5,6 @@ from pymongo import MongoClient
 import json, pandas
 
 database = 'matrixdb-data-fabric'
-
 CONFIG_FILE = "./conf/config.json"
 
 with open(CONFIG_FILE) as config:

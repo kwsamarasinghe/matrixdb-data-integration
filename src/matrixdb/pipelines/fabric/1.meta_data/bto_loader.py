@@ -36,6 +36,5 @@ with open(CONFIG_FILE) as config:
             else:
                 print()
 
-
         data_fabric_connection = get_db_connection("matrixdb-data-fabric")
         data_fabric_connection["bto"].insert_many(psimi_to_load)

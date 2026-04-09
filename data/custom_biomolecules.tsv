@@ -209,9 +209,9 @@ GAG_55	HS_dp08_0001	Heparan sulfate		CHEBI:140926,GlyTouCan:G05609SX	An heparan 
 GAG_56	HS_dp08_0002	Heparan sulfate		CHEBI:140925,GlyTouCan:G05889HU	An heparan sulfate octasaccharide. aManR=2,5-anhydromannitol.	beta-D-GlcA-(1->4)-alpha-D-GlcNS-(1->4)-alpha-L-IdoA(2S)-(1->4)-alpha-D-GlcNS-(1->4)-alpha-L-IdoA(2S)-(1->4)-alpha-D-GlcNS-(1->4)-alpha-L-IdoA-(1->4)-aManR(6S)
 GAG_57	HS_dp08_0003	Heparan sulfate		CHEBI:140924,GlyTouCan:G97860RU	An heparan sulfate octasaccharide. aManR=2,5-anhydromannitol.	beta-D-GlcA-(1->4)-alpha-D-GlcNS(6S)-(1->4)-alpha-L-IdoA(2S)-(1->4)-alpha-D-GlcNS-(1->4)-alpha-L-IdoA(2S)-(1->4)-alpha-D-GlcNS-(1->4)-alpha-L-IdoA-(1->4)-aManR(6S)
 GAG_58	HS_dp08_0004	Heparan sulfate		CHEBI:140923,GlyTouCan:G90290QZ	An heparan sulfate octasaccharide. aManR=2,5-anhydromannitol.	beta-D-GlcA-(1->4)-alpha-D-GlcNS(6S)-(1->4)-alpha-L-IdoA(2S)-(1->4)-alpha-D-GlcNS(6S)-(1->4)-alpha-L-IdoA(2S)-(1->4)-alpha-D-GlcNS-(1->4)-alpha-L-IdoA-(1->4)-aManR
-GAG_59	Sulfated hyaluronan Low sulfate	Sulfated hyaluronan	Polymeric sulfated hyaluronan, degree of sulfation 1.2	CHEBI:194333		
-GAG_60	Sulfated hyaluronan High sulfate	Sulfated hyaluronan	Polymeric sulfated hyaluronan, degree of sulfation 3.5	CHEBI:194334		
-GAG_61	Sulfated hyaluronan Trideca-sulfo-hyaluronan-hexasaccharide	Sulfated hyaluronan	Trideca-sulfo-hyaluronan-hexasaccharide	CHEBI:194335		
+GAG_59	Sulfated hyaluronan Low sulfate	Sulfated hyaluronan		CHEBI:194333	Polymeric sulfated hyaluronan, degree of sulfation 1.2
+GAG_60	Sulfated hyaluronan High sulfate	Sulfated hyaluronan		CHEBI:194334	Polymeric sulfated hyaluronan, degree of sulfation 3.5
+GAG_61	Sulfated hyaluronan Trideca-sulfo-hyaluronan-hexasaccharide	Sulfated hyaluronan		CHEBI:194335	Trideca-sulfo-hyaluronan-hexasaccharide
 GAG_62	Keratan sulfate	Keratan sulfate		CHEBI: 60924	A linear polymer that consists of the repeating disaccharide [3)-β-Gal-(1→4)-β-GlcNAc-(1→] and containing sulfo groups located at random positions.	[3)-β-Gal-(1→4)-β-GlcNAc-(1→]
 CAT_1	Zinc			CHEBI:29105,KEGG:cpd:C00038		
 CAT_2	Copper			CHEBI:29036,KEGG:cpd:C00070		

@@ -21,7 +21,7 @@ def get_db_connection(database):
 start_time = time.time()
 
 # Retrive the uniprot ids
-fabric_connection = get_db_connection('matrixdb-pre-prod')
+fabric_connection = get_db_connection('matrixdb-data-fabric')
 uniprot_ids = dict()
 for u in fabric_connection["biomolecules"].find({'type': 'protein', 'dataset': 'Swiss-Prot'}):
     uniprot_ids[u["id"]] = 1
@@ -29,7 +29,7 @@ for u in fabric_connection["biomolecules"].find({'type': 'protein', 'dataset': '
 ## Human id mapping file
 human_mapping_count = 0
 mapped_uniprot_humanids = set()
-with gzip.open(uniprot_file_location + "HUMAN_9606_idmapping.dat.gz" ) as uniprot_human_file:
+with gzip.open(uniprot_file_location + "HUMAN_9606_idmapping.dat.gz") as uniprot_human_file:
     for line in uniprot_human_file:
         line = line.decode('utf-8').strip()
         tabs = line.split('\t')

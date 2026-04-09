@@ -19,6 +19,8 @@ complex_portal_API = 'https://www.ebi.ac.uk/intact/complex-ws/complex/'
 complex_portal_api = 'https://www.ebi.ac.uk/intact/complex-ws/complex/'
 
 # Function to make an HTTP call and parse the response to JSON
+
+
 def fetch_data(cpx_id):
     try:
         response = requests.get(f'{complex_portal_api}{cpx_id}')
@@ -36,6 +38,8 @@ def fetch_data(cpx_id):
         print(f'Error fetching data: {err}')
 
 # Read all multimers from core database
+
+
 core_connection = get_db_connection("matrixdb-4_0-pre-prod")
 for multimer in core_connection["biomolecules"].find({
     'type': 'multimer'

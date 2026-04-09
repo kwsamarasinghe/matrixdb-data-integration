@@ -2,7 +2,10 @@ def convert_uniprot(uniprot_entry):
     biomolecule = dict()
 
     if type(uniprot_entry["accession"]) is list:
-        biomolecule["id"] = uniprot_entry["accession"][0]["text"]
+        if "text" in uniprot_entry["accession"][0]:
+            biomolecule["id"] = uniprot_entry["accession"][0]["text"]
+        else:
+            return None
     else:
         biomolecule["id"] = uniprot_entry["accession"]["text"]
 
@@ -12,16 +15,24 @@ def convert_uniprot(uniprot_entry):
 
     # Names
     names = dict()
-    names["name"] = uniprot_entry["name"]["text"]
-    names["common_name"] = uniprot_entry["name"]["text"]
-    names["recommended_name"] = uniprot_entry["protein"]["recommendedName"]["fullName"]["text"]
+    if "text" in uniprot_entry["name"]:
+        names["name"] = uniprot_entry["name"]["text"]
+        names["common_name"] = uniprot_entry["name"]["text"]
+    else:
+        print()
+
+    if "text" in uniprot_entry["protein"]["recommendedName"]["fullName"]:
+        names["recommended_name"] = uniprot_entry["protein"]["recommendedName"]["fullName"]["text"]
+
     names["other_name"] = []
     if "alternativeName" in uniprot_entry["protein"]:
         if type(uniprot_entry["protein"]["alternativeName"]) is list:
             for name in uniprot_entry["protein"]["alternativeName"]:
-                names["other_name"].append(name["fullName"]["text"])
+                if "text" in name["fullName"]:
+                    names["other_name"].append(name["fullName"]["text"])
         else:
-            names["other_name"].append(uniprot_entry["protein"]["alternativeName"]["fullName"]["text"])
+            if "text" in uniprot_entry["protein"]["alternativeName"]["fullName"]:
+                names["other_name"].append(uniprot_entry["protein"]["alternativeName"]["fullName"]["text"])
     biomolecule["names"] = names
 
     biomolecule["species"] = dict()
@@ -39,9 +50,16 @@ def convert_uniprot(uniprot_entry):
                     relations["gene_name"] = n["name"]["text"]
         else:
             if type(uniprot_entry["gene"]["name"]) is list:
-                relations["gene_name"] = list(n["text"] for n in uniprot_entry["gene"]["name"])
+                #if "type" in uniprot_entry["gene"]["name"] and uniprot_entry["gene"]["name"]["type"] == "primary":
+                relations["gene_name"] =  list()
+                for n in uniprot_entry["gene"]["name"]:
+                    if "text" in n:
+                        relations["gene_name"].append(n["text"])
+                    else:
+                        print()
             else:
-                relations["gene_name"] = uniprot_entry["gene"]["name"]["text"]
+                if "text" in uniprot_entry["gene"]["name"]:
+                    relations["gene_name"] = uniprot_entry["gene"]["name"]["text"]
     biomolecule["relations"] = relations
 
     # Molecular details
@@ -53,9 +71,14 @@ def convert_uniprot(uniprot_entry):
     if "length" in uniprot_entry["sequence"]:
         molecular_details["sequence_length"] = uniprot_entry["sequence"]["length"]
 
+    molecular_details["pdb"] = list()
     for pdb in list(filter(lambda c: c["type"] == "PDB", uniprot_entry["dbReference"])):
-        molecular_details["pdb"] = list()
-        molecular_details["pdb"].append(pdb["id"])
+        if "property" in pdb:
+            properties = pdb["property"]
+        molecular_details["pdb"].append({
+            "id": pdb["id"],
+            "properties": properties,
+        })
     biomolecule["molecular_details"] = molecular_details
 
     source_details = dict()
@@ -116,11 +139,26 @@ def convert_uniprot(uniprot_entry):
         annotations["disease"] = list()
         for d in list(filter(lambda c: c["type"] == "disease", uniprot_entry["comment"])):
             if "disease" in d:
-                annotations["disease"].append({
-                    "id": d["disease"]["id"],
-                    "name": d["disease"]["name"]["text"],
-                    "description": d["disease"]["description"]["text"]
-                })
+
+                description = None
+                if "text" in d["disease"]["description"]:
+                    description = d["disease"]["description"]["text"]
+
+
+                name = None
+                if "text" in  d["disease"]["name"]:
+                    name = d["disease"]["name"]["text"]
+                disease_to_add = {
+                    "id": d["disease"]["id"]
+                }
+
+                if name is not None:
+                    disease_to_add["name"] = name
+
+                if description is not None:
+                    disease_to_add["description"] = description
+
+                annotations["disease"].append(disease_to_add)
             else:
                 if "text" in d:
                     annotations["disease"].append({
@@ -139,16 +177,20 @@ def convert_uniprot(uniprot_entry):
                     if type(subcell_comment["subcellularLocation"]) == list:
                         for l in subcell_comment["subcellularLocation"]:
                             if type(l["location"]) is dict:
-                                subcell_comments.append(l["location"]["text"])
+                                if "text" in l["location"]:
+                                    subcell_comments.append(l["location"]["text"])
                             else:
                                 for ll in l["location"]:
-                                    subcell_comments.append(ll["text"])
+                                    if "text" in ll:
+                                        subcell_comments.append(ll["text"])
                     else:
                         if type(subcell_comment["subcellularLocation"]["location"]) == list:
                             for ll in subcell_comment["subcellularLocation"]["location"]:
-                                subcell_comments.append(ll["text"])
+                                if "text" in ll:
+                                    subcell_comments.append(ll["text"])
                         else:
-                            subcell_comments.append(subcell_comment["subcellularLocation"]["location"]["text"])
+                            if "text" in subcell_comment["subcellularLocation"]["location"]:
+                                subcell_comments.append(subcell_comment["subcellularLocation"]["location"]["text"])
 
         annotations["subcellular_location"] = []
         for subcell_comment in subcell_comments:
@@ -168,10 +210,6 @@ def convert_uniprot(uniprot_entry):
     biomolecule["annotations"] = annotations
 
     xrefs = {}
-    if type(uniprot_entry["accession"]) is list:
-        xrefs["uniprot"] = uniprot_entry["accession"][0]["text"]
-    else:
-        xrefs["uniprot"] = uniprot_entry["accession"]["text"]
     reactome_refs = list(filter(lambda c: c["type"] == "Reactome", uniprot_entry["dbReference"]))
     if len(reactome_refs) > 0:
         xrefs["reactome"] = list({'id': rf['id'], 'type': rf['property']['type'], 'value': rf['property']['value']}for rf in reactome_refs)
@@ -217,11 +255,19 @@ def convert_trembl(trembl_entry):
                     for alt_name in other_names["alternativeNames"]:
                         if "fullName" in alt_name:
                             names["other_name"].append(alt_name["fullName"]["value"])
+
+    if "submissionNames" in trembl_entry["proteinDescription"]:
+        if type(trembl_entry["proteinDescription"]["submissionNames"]) is list:
+            names["recommended_name"] = trembl_entry["proteinDescription"]["submissionNames"][0]["fullName"]["value"]
+
+    if "uniProtkbId" in trembl_entry:
+        names["name"] = trembl_entry["uniProtkbId"]
+
     biomolecule["names"] = names
 
     biomolecule["species"] = dict()
     biomolecule["species"]["db"] = "NCBI Taxonomy"
-    biomolecule["species"]["id"] = trembl_entry["organism"]["taxonId"]
+    biomolecule["species"]["id"] = str(trembl_entry["organism"]["taxonId"])
 
     # Relations
     relations = dict()

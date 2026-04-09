@@ -16,42 +16,90 @@ def load_missing_proteins(source, target):
             all_participants.add(participant)
 
     missing_participants = all_participants.difference(existing_biomolecules)
-    proteins_to_load = list()
-    for biomolecule in list(missing_participants):
-        # Check if a core biomolecule
-        if 'GAG' in biomolecule or 'MULT' in biomolecule or 'PFRAG' in biomolecule\
-                or 'CAT_' in biomolecule or 'SPEP_' in biomolecule or 'LIP_' in biomolecule:
-            # Cannot do anything here
-            print(f"missing {biomolecule}")
+    logging.info(f"Missing participants: {len(missing_participants)}")
+
+    missing_chebis = set(filter(lambda p: 'CHEBI' in p, missing_participants))
+    logging.info(f"Missing chebi: {len(missing_chebis)}")
+
+    missing_ebi = set(filter(lambda p: 'EBI-' in p, missing_participants))
+    logging.info(f"Missing ebi: {len(missing_ebi)}")
+
+    missing_proteins = set(missing_participants).difference(missing_chebis).difference(missing_ebi)
+    logging.info(f"Missing proteins: {len(missing_proteins)}")
+
+    # Extract the missing protein names considering isoform notation as well
+    final_missing_proteins = set()
+    for protein in missing_proteins:
+        if '-' in protein:
+            accession = protein.split('-')[0]
         else:
-            protein_status_provide = ProteinStatusProvider(source)
-            protein_status_list = protein_status_provide.get_protein_entry_status(missing_participants)
+            accession = protein
 
-            for protein_status in protein_status_list:
-                if 'obsolete' in protein_status:
-                    # Create an obsolete biomolecule node
-                    biomolecule = {
-                        'id': protein_status['accession'],
-                        'obsolete': True,
-                        'type': 'protein'
-                    }
-                    if 'primaryAccession' in protein_status:
-                        biomolecule['refer_to'] = protein_status['primaryAccession']
-                else:
-                    if 'trembl' in protein_status:
-                        trembl_entry = protein_status['entry']
-                        biomolecule = convert_trembl(trembl_entry)
+        if accession not in existing_biomolecules:
+            final_missing_proteins.add(accession)
 
-                    if 'uniprot' in protein_status:
-                        uniprot_entry = protein_status['entry']
-                        biomolecule = convert_uniprot(uniprot_entry)
-                proteins_to_load.append(biomolecule)
+    proteins_to_load = list()
+    protein_status_provide = ProteinStatusProvider(source)
+    protein_status_list = protein_status_provide.get_protein_entry_status(list(final_missing_proteins))
+
+    for protein_status in protein_status_list:
+        if 'obsolete' in protein_status:
+            # Create an obsolete biomolecule node
+            biomolecule = {
+                'id': protein_status['accession'],
+                'obsolete': True,
+                'type': 'protein'
+            }
+            if 'primaryAccession' in protein_status:
+                biomolecule['refer_to'] = protein_status['primaryAccession']
+        else:
+            if 'trembl' in protein_status:
+                trembl_entry = protein_status['entry']
+                biomolecule = convert_trembl(trembl_entry)
+
+            if 'uniprot' in protein_status:
+                uniprot_entry = protein_status['entry']
+                biomolecule = convert_uniprot(uniprot_entry)
+        proteins_to_load.append(biomolecule)
 
     logging.info({
         "source": "protein",
         "count": len(proteins_to_load)
     })
     target["biomolecules"].insert_many(proteins_to_load)
+
+
+def remove_duplicates(source, target):
+    # Check for duplicates
+    duplicate_biomolecules = list()
+    duplicate_ids = set()
+    for biomolecule_id in list(target["biomolecules"].aggregate([
+        {
+            '$group': {
+                '_id': '$id',
+                'count': {
+                    '$sum': 1
+                }
+            }
+        },
+        {
+            '$match': {
+                'count': {
+                    '$gt': 1
+                }
+            }
+        }
+    ])):
+        if biomolecule_id['_id'] not in duplicate_ids:
+            duplicate_biomolecule = target["biomolecules"].find_one({
+                'id': biomolecule_id['_id']
+            })
+            del duplicate_biomolecule["_id"]
+            duplicate_biomolecules.append(duplicate_biomolecule)
+            duplicate_ids.add(biomolecule_id['_id'])
+
+    target["biomolecules"].delete_many({'id': {'$in': list(b['id'] for b in duplicate_biomolecules)}})
+    target["biomolecules"].insert_many(duplicate_biomolecules)
 
 
 def execute(config, database_manager):
@@ -77,4 +125,8 @@ def execute(config, database_manager):
         port=target_port
     )
 
+    # Load missing proteins
     load_missing_proteins(source_connection, target_connection)
+
+    # Remove duplicates
+    #remove_duplicates(source_connection, target_connection)

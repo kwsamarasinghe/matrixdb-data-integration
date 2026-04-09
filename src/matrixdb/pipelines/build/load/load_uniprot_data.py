@@ -39,6 +39,16 @@ def load_trembl(source, target):
             }
         ]
     })
+    #print(f"Distinct ids {len(trembl_entry_ids)}")
+
+
+    #trembl_entries = source["tremblEntries"].find({
+    #    'primaryAccession': {
+    #        '$in': trembl_entry_ids
+    #    }
+    #})
+
+    loaded_trembl_entries = set()
 
     trembl_count = 0
     trembls_to_load = list()
@@ -47,8 +57,9 @@ def load_trembl(source, target):
         converted_trembl["ecm"] = True
         trembls_to_load.append(converted_trembl)
 
-        if len(trembls_to_load) > 10000:
-            print("Writing 10000 trembl entries")
+        loaded_trembl_entries.add(converted_trembl['id'])
+        if len(trembls_to_load) > 5000:
+            print("Writing 5000 trembl entries")
             target["biomolecules"].insert_many(trembls_to_load)
             del trembls_to_load
             trembls_to_load = list()
@@ -86,9 +97,12 @@ def load_uniprot(source, target):
 
     uniprot_count = 0
     uniprots_to_load = list()
-
     for uniprot_entry in uniprot_entries:
         converted_uniprot = convert_uniprot(uniprot_entry)
+
+        if converted_uniprot is None:
+            continue
+
         converted_uniprot["ecm"] = True
         uniprots_to_load.append(converted_uniprot)
 

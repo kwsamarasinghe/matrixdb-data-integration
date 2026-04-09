@@ -5,10 +5,9 @@ from src.matrixdb.utils.protein_entry_status_provider import ProteinStatusProvid
 
 
 def load_matrisome_proteins(source, target):
-    protein_status_provide = ProteinStatusProvider(source)
     loaded_not_in_ecm = 0
     already_in_ecm = 0
-    obsolete = 0
+    to_load = list()
     disctint_matrisome_accessions = list(source["matrisomeEntries"].distinct("accession"))
     for matrisome_entry in source["matrisomeEntries"].find({
         "accession": {
@@ -20,63 +19,86 @@ def load_matrisome_proteins(source, target):
             "id": matrisome_entry["accession"]
         })
 
-        category = matrisome_entry["category"]
-        division = matrisome_entry["division"]
         if found_entry is not None:
             # Updates the entry with matrisome categories
+            category = matrisome_entry["category"]
+            division = matrisome_entry["division"]
+
             target["biomolecules"].update_one(
                 {
                     "id": matrisome_accession
                 },
                 {
                     "$set": {
-                        "matrisome": {
-                            "category": category,
-                            "division": division
+                        "ecmness": {
+                            "matrisome": {
+                                "category": category,
+                                "division": division
+                            }
                         }
                     }
-                })
-            already_in_ecm += 1
+                }
+            )
 
         else:
-            protein_status = protein_status_provide.get_protein_entry_status(matrisome_accession)
+            # Have to find in uniprot or trembl
+            found_entry = source["uniprotEntries"].find_one({
+                "accession.text": matrisome_entry["accession"]
+            })
 
-            if 'obsolete' in protein_status:
-                # Create an obsolete biomolecule node
-                biomolecule = {
-                    'id': protein_status['accession'],
-                    'obsolete': True,
-                    'type': 'protein'
+            if found_entry is not None:
+                # Have to check if the entry is merged
+                if type(found_entry["accession"]) is list:
+                    primary_accession = found_entry["accession"][0]["text"]
+                    if matrisome_entry["accession"] != primary_accession:
+                        # Merged
+                        print(f"Merged the entry {matrisome_entry} to {primary_accession}")
+                        continue
+
+                # Have to load the entry
+                converted_uniprot = convert_uniprot(found_entry)
+                category = matrisome_entry["category"]
+                division = matrisome_entry["division"]
+                converted_uniprot["ecmness"] = {
+                    "matrisome": {
+                        "category": category,
+                        "division": division
+                    }
                 }
-                if 'primaryAccession' in protein_status:
-                    biomolecule['primaryAccession'] = protein_status['primaryAccession']
-                obsolete += 1
-            else:
-                if 'trembl' in protein_status:
-                    trembl_entry = protein_status['entry']
-                    biomolecule = convert_trembl(trembl_entry)
-                    biomolecule['matrisome'] = {
-                            "category": category,
-                            "division": division
-                    }
-
-                if 'uniprot' in protein_status:
-                    uniprot_entry = protein_status['entry']
-                    biomolecule = convert_uniprot(uniprot_entry)
-                    biomolecule['matrisome'] = {
-                            "category": category,
-                            "division": division
-                    }
+                entry_id = converted_uniprot["id"]
+                print(f"Inserting {entry_id}")
+                #target["biomolecules"].insert_one(converted_uniprot)
+                to_load.append(converted_uniprot)
                 loaded_not_in_ecm += 1
 
-            target['biomolecules'].insert_one(biomolecule)
+            else:
+                # Try trembl
+                found_entry = source["tremblEntries"].find_one({
+                    "primaryAccession": matrisome_entry["accession"]
+                })
+                if found_entry is None:
+                    print(f"Obsolete entry {matrisome_entry}")
+                    continue
+                converted_entry = convert_trembl(found_entry)
+                entry_id = converted_entry["id"]
+                converted_entry["ecmness"] = {
+                    "matrisome": {
+                        "category": category,
+                        "division": division
+                    }
+                }
+                print(f"Inserting {entry_id}")
+                #target["biomolecules"].insert_one(converted_entry)
+                to_load.append(converted_entry)
+                loaded_not_in_ecm += 1
+
+    target["biomolecules"].insert_many(to_load)
 
     logging.info({
         'source': 'matrisome',
         'read_from_source': len(disctint_matrisome_accessions),
         'load_to_target': loaded_not_in_ecm,
-        'already_in_ecm': already_in_ecm,
-        'obsolete': obsolete,
+        'already_in_ecm': already_in_ecm
     })
 
 

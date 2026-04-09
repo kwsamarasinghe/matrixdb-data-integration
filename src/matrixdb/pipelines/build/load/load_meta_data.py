@@ -331,6 +331,78 @@ def load_uniprot_keywords(source, target):
             "status": "LOAD_TO_TARGET_FAILED"
         })
 
+def load_ncbi_taxonomy(source, target):
+    data = [
+        {"id": "984", "name": "Pedobacter heparinus", "common_name": "Pedobacter heparinus"},
+        { "id": "7955", "name": "Danio rerio", "common_name": "zebrafish" },
+        { "id": "9606", "name": "Homo sapiens", "common_name": "human" },
+        { "id": "9615", "name": "Canis lupus familiaris", "common_name": "dog" },
+        { "id": "9823", "name": "Sus scrofa", "common_name": "pig" },
+        { "id": "9913", "name": "Bos taurus", "common_name": "bovine" },
+        { "id": "9940", "name": "Ovis aries", "common_name": "sheep" },
+        { "id": "9031", "name": "Gallus gallus", "common_name": "chicken" },
+        { "id": "9986", "name": "Oryctolagus cuniculus", "common_name": "rabit"},
+        { "id": "10090", "name": "Mus musculus", "common_name": "house mouse" },
+        { "id": "10116", "name": "Rattus norvegicus", "common_name": "Norway rat" },
+        { "id": "10144", "name": "Cavia cutleri", "common_name": "rodents" },
+        { "id": "44689", "name": "Dictyostelium discoideum", "common_name": "cellular slime molds" }
+    ]
+    target["ncbiTaxonomy"].insert_many(data)
+
+
+def load_reactome(source, target):
+    start = time.time()
+    # Read from source
+    reactome_entries = list()
+    try:
+        reactome_entries = list()
+        for reactome_entry in source["reactome"].find():
+            reactome_entries.append(reactome_entry)
+
+        if len(reactome_entries) > 0:
+            logging.info({
+                "resource": "reactome",
+                "source": "mongodb",
+                "count": len(reactome_entries),
+                "status": "READ_FROM_SOURCE_SUCCESS"
+            })
+        else:
+            logging.info({
+                "resource": "reactome",
+                "source": "mongodb",
+                "count": 0,
+                "status": "READ_FROM_SOURCE_SUCCESS",
+                "message": "No reactome entries read from source"
+            })
+            return
+    except Exception as e:
+        end = time.time() - start
+        logging.error({
+            "error": str(e),
+            "resource": "reactome",
+            "time": end,
+            "status": "READ_FROM_SOURCE_FAILED"
+        })
+
+    # Load to target
+    try:
+        target["reactome"].insert_many(reactome_entries)
+        end = time.time() - start
+        logging.info({
+            "resource": "reactome",
+            "count": len(reactome_entries),
+            "time": end,
+            "status": "LOAD_TO_TARGET_SUCCESS"
+        })
+    except Exception as e:
+        end = time.time() - start
+        logging.error({
+            "error": str(e),
+            "resource": "reactome",
+            "time": end,
+            "status": "LOAD_TO_TARGET_FAILED"
+        })
+
 
 def execute(config, database_manager):
 
@@ -354,9 +426,11 @@ def execute(config, database_manager):
         port=target_port
     )
 
-    load_psimi(source_connection, target_connection)
-    load_go(source_connection, target_connection)
-    load_uberon(source_connection, target_connection)
-    load_pubmed(source_connection, target_connection)
-    load_bto(source_connection, target_connection)
-    load_uniprot_keywords(source_connection, target_connection)
+    #load_psimi(source_connection, target_connection)
+    #load_go(source_connection, target_connection)
+    #load_uberon(source_connection, target_connection)
+    #load_pubmed(source_connection, target_connection)
+    #load_bto(source_connection, target_connection)
+    #load_uniprot_keywords(source_connection, target_connection)
+    #load_ncbi_taxonomy(source_connection, target_connection)
+    load_reactome(source_connection, target_connection)

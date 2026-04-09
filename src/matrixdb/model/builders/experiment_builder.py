@@ -22,7 +22,7 @@ class ExperimentBuilder:
         # Iterate over the substrings after splitting by pipe
         for substring in split_by_pipe:
             # Split each substring based on the colon
-            if not "intact" in substring and not "imex" in substring:
+            if "intact" not in substring and "imex" not in substring:
                 continue
 
             key, value = substring.split(':')
@@ -34,21 +34,80 @@ class ExperimentBuilder:
                 imex_id = value
 
         pubmed = interaction["Publication Identifier(s)"]
-        source = interaction["Source database(s)"]
-        source_name = re.search(r'\(.*\)',source).group(0)
+
+        # Source
+        pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+        match = re.search(pattern, interaction["Source database(s)"])
+        if match is not None:
+            source = match.group(1)
+        else:
+            source = interaction["Source database(s)"]
+
+        source_name = re.search(r'\(.*\)',interaction["Source database(s)"]).group(0)
         source_name = source_name.replace('(', '')
         source_name = source_name.replace(')', '')
+        source_name = source_name.lower()
+
         expansion_method = interaction["Expansion method(s)"]
+
         host_organism = interaction["Host organism(s)"]
-        #xrefs = self.intact_interaction["Interaction Xref(s)"]
+        host_organisms = list()
+        if "|" in host_organism:
+            for taxonomy in host_organism.split('|'):
+                pattern = r'taxid:(.*?)\('
+                match = re.search(pattern, taxonomy)
+                if match is not None:
+                    host_organisms.append(match.group(1))
+
         xrefs = {
             "intact": intact_id,
             "imex": imex_id
         }
-        annotations = interaction["Interaction annotation(s)"]
-        interaction_detection_method = interaction["Interaction detection method(s)"]
+
+        annotations = list()
+        if interaction["Interaction annotation(s)"] != '-':
+            if "|" in interaction["Interaction annotation(s)"]:
+                for f in interaction["Interaction annotation(s)"].split("|"):
+                    features = f.split(':')
+                    if len(features) > 1:
+                        annotations.append({
+                            'feature_name': f.split(':')[0],
+                            'featur_value': f.split(':')[1]
+                        })
+                    if len(features) == 1:
+                        annotations.append({
+                            'feature_name': f.split(':')[0]
+                        })
+            else:
+                f = interaction["Interaction annotation(s)"]
+                features = f.split(':')
+                if len(features) > 1:
+                    annotations.append({
+                        'feature_name': features[0],
+                        'featur_value': features[1]
+                    })
+                else:
+                    annotations.append({
+                        'feature_name': features[0]
+                    })
+
+        # Interaction detection method
+        pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+        match = re.search(pattern, interaction["Interaction detection method(s)"])
+        if match is not None:
+            interaction_detection_method = match.group(1)
+        else:
+            interaction_detection_method = interaction["Interaction detection method(s)"]
+
+        # Interaction type
+        pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+        match = re.search(pattern, interaction["Interaction type(s)"])
+        if match is not None:
+            interaction_type = match.group(1)
+        else:
+            interaction_type = interaction["Interaction detection method(s)"]
+
         interaction_parameters = interaction["Interaction parameter(s)"]
-        interaction_type = interaction["Interaction type(s)"]
 
         creation_date = interaction["Creation date"]
         update_date = interaction["Update date"]
@@ -61,19 +120,101 @@ class ExperimentBuilder:
                 participant_a_details = {
                     "isoform": intact_interaction["interactor_a_details"]["isoform"]
                 }
-            participant_a_annotations = intact_interaction["Annotation(s) interactor A"]
-            participant_a_biological_role = intact_interaction["Biological role(s) interactor A"]
-            participant_a_experimental_role = intact_interaction["Experimental role(s) interactor A"]
-            participant_a_features = intact_interaction["Feature(s) interactor A"]
+
+            # participant type
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Type(s) interactor A"])
+            participant_a_type = '-'
+            if match is not None:
+                participant_a_type = match.group(1)
+
+            # Bio role
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Biological role(s) interactor A"])
+            if match is not None:
+                participant_a_biological_role = match.group(1)
+            else:
+                participant_a_biological_role = intact_interaction["Biological role(s) interactor A"]
+
+            # Exp role
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Experimental role(s) interactor A"])
+            if match is not None:
+                participant_a_experimental_role = match.group(1)
+            else:
+                participant_a_experimental_role = intact_interaction["Experimental role(s) interactor A"]
+
+            # participant identification method
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Identification method participant A"])
+            if match is not None:
+                participant_a_identification_method = match.group(1)
+            else:
+                participant_a_identification_method = intact_interaction["Identification method participant A"]
+
+            participant_a_annotations = list()
+            if intact_interaction["Annotation(s) interactor A"] != '-':
+                if "|" in intact_interaction["Annotation(s) interactor A"]:
+                    for f in intact_interaction["Annotation(s) interactor A"].split("|"):
+                        features = f.split(':')
+                        if len(features) > 1:
+                            participant_a_annotations.append({
+                                'feature_name': f.split(':')[0],
+                                'featur_value': f.split(':')[1]
+                            })
+                        if len(features) == 1:
+                            annotations.append({
+                                'feature_name': features[0]
+                            })
+                else:
+                    f = intact_interaction["Annotation(s) interactor A"]
+                    features = f.split(':')
+                    if len(features) > 1:
+                        participant_a_annotations.append({
+                            'feature_name': f.split(':')[0],
+                            'featur_value': f.split(':')[1]
+                        })
+                    if len(features) == 1:
+                        annotations.append({
+                            'feature_name': features[0]
+                        })
+
+            participant_a_features = list()
+            if intact_interaction["Feature(s) interactor A"] != '-':
+                if "|" in intact_interaction["Feature(s) interactor A"]:
+                    for f in intact_interaction["Feature(s) interactor A"].split("|"):
+                        features = f.split(':')
+                        if len(features) > 1:
+                            participant_a_features.append({
+                                'feature_name': f.split(':')[0],
+                                'featur_value': f.split(':')[1]
+                            })
+                        else:
+                            participant_a_features.append({
+                                'feature_name': f.split(':')[0]
+                            })
+                else:
+                    f = intact_interaction["Feature(s) interactor A"]
+                    features = f.split(':')
+                    if len(features) > 1:
+                        participant_a_features.append({
+                            'feature_name': f.split(':')[0],
+                            'featur_value': f.split(':')[1]
+                        })
+                    else:
+                        participant_a_features.append({
+                            'feature_name': f.split(':')[0]
+                        })
+
             participant_a_stoichiometry = intact_interaction["Stoichiometry(s) interactor A"]
-            participant_a_identification_method = intact_interaction["Identification method participant A"]
 
             # Check if participant_a exists in participants
             element_exists = lambda participant_id : any(participant.get("id") == participant_id for participant in participants)
             if not element_exists(participant_a):
                 participants.append({
                     "id": participant_a,
-                    "deatails": participant_a_details,
+                    "type": participant_a_type,
+                    "details": participant_a_details,
                     "features": participant_a_features,
                     "annotations": participant_a_annotations,
                     "biological_role": participant_a_biological_role,
@@ -88,16 +229,89 @@ class ExperimentBuilder:
                 participant_b_details = {
                     "isoform": intact_interaction["interactor_b_details"]["isoform"]
                 }
-            participant_b_biological_role = intact_interaction["Biological role(s) interactor B"]
-            participant_b_annotations = intact_interaction["Annotation(s) interactor B"]
-            participant_b_experimental_role = intact_interaction["Experimental role(s) interactor B"]
-            participant_b_features = intact_interaction["Feature(s) interactor B"]
+
+            # participant type
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Type(s) interactor B"])
+            participant_b_type = '-'
+            if match is not None:
+                participant_b_type = match.group(1)
+
+            # Bio role
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Biological role(s) interactor B"])
+            if match is not None:
+                participant_b_biological_role = match.group(1)
+            else:
+                participant_b_biological_role = intact_interaction["Biological role(s) interactor B"]
+
+            # Exp role
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Experimental role(s) interactor B"])
+            if match is not None:
+                participant_b_experimental_role = match.group(1)
+            else:
+                participant_b_experimental_role = intact_interaction["Experimental role(s) interactor B"]
+
+            # participant identification method
+            pattern = r'psi-mi:"([^"]+)"\(([^)]+)\)'
+            match = re.search(pattern, intact_interaction["Identification method participant B"])
+            if match is not None:
+                participant_b_identification_method = match.group(1)
+            else:
+                participant_b_identification_method = intact_interaction["Identification method participant B"]
+
+            participant_b_annotations = list()
+            if intact_interaction["Annotation(s) interactor B"] != '-':
+                if "|" in intact_interaction["Annotation(s) interactor B"]:
+                    for f in intact_interaction["Annotation(s) interactor B"].split("|"):
+                        features = f.split(':')
+                        if len(features) > 1:
+                            participant_b_annotations.append({
+                                'feature_name': f.split(':')[0],
+                                'featur_value': f.split(':')[1]
+                            })
+
+                        if len(features) == 1:
+                            participant_b_annotations.append({
+                                'feature_name': f.split(':')[0]
+                            })
+
+                else:
+                    f = intact_interaction["Annotation(s) interactor B"]
+                    features = f.split(':')
+                    if len(features) > 1:
+                        participant_b_annotations.append({
+                            'feature_name': f.split(':')[0],
+                            'featur_value': f.split(':')[1]
+                        })
+
+                    if len(features) == 1:
+                        participant_b_annotations.append({
+                            'feature_name': f.split(':')[0]
+                        })
+
+            participant_b_features = list()
+            if intact_interaction["Feature(s) interactor B"] != '-':
+                if "|" in intact_interaction["Feature(s) interactor B"]:
+                    for f in intact_interaction["Feature(s) interactor B"].split("|"):
+                        participant_b_features.append({
+                            'feature_name': f.split(':')[0],
+                            'featur_value': f.split(':')[1]
+                        })
+                else:
+                    f = intact_interaction["Feature(s) interactor B"]
+                    participant_b_features.append({
+                        'feature_name': f.split(':')[0],
+                        'featur_value': f.split(':')[1]
+                    })
+
             participant_b_stoichiometry = intact_interaction["Stoichiometry(s) interactor B"]
-            participant_b_identification_method = intact_interaction["Identification method participant B"]
 
             if not element_exists(participant_b):
                 participants.append({
                     "id": participant_b,
+                    "type": participant_b_type,
                     "details": participant_b_details,
                     "features": participant_b_features,
                     "annotations": participant_b_annotations,
@@ -128,7 +342,7 @@ class ExperimentBuilder:
             participants=participants,
             pmid=pubmed,
             source=source,
-            host_organisms=host_organism,
+            host_organisms=host_organisms,
             interaction_detection_method=interaction_detection_method,
             interaction_type=interaction_type,
             annotations=annotations,

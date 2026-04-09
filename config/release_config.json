@@ -1,8 +1,6 @@
 {
 	"release": {
-		"data": "4.0",
-		"ui": "2.0",
-		"api": "2.0"
+		"data": "4.0"
 	},
 	"dependencies" : {
 		"meta": {
@@ -62,7 +60,7 @@
 			}
 		},
 		"intact": {
-			"version": "2023_08",
+			"version": "2024_02",
 			"source": {
 				"type": "database",
 				"host": "localhost:27018",
@@ -90,6 +88,31 @@
 				"port": "27018",
 				"database": "matrixdb_4_0"
 			}
+		},
+		"predictions": {
+			"version": "2024_01",
+			"raw": "/scratch/PIG/matrix-db/data/external/ppi-predictions/31.01.2024/ecm_human_20230925_KS_SRB.IID_predicted_PPIs/ecm_human_20230925_KS_SRB.IID_PPIs_all.pmids.txt",
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"pubmed": {
+			"api" : "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id={pubmedid}}&retmode=json",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
 		}
 	},
 	"pipelines": {
@@ -102,11 +125,59 @@
 		"core": {
 			"module": "src.matrixdb.pipelines.build.load.load_core_data"
 		},
+		"core_interactions": {
+			"module": "src.matrixdb.pipelines.build.load.load_core_interactions",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
 		"matrisome_proteins": {
 			"module": "src.matrixdb.pipelines.build.load.load_matrisome_protein_data"
 		},
 		"intact": {
 			"module": "src.matrixdb.pipelines.build.load.load_intact_data"
+		},
+		"intact_post_processing": {
+			"module": "src.matrixdb.pipelines.build.load.post_process_intact_load",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"biomolecule_post_processing": {
+			"module": "src.matrixdb.pipelines.build.load.post_process_biomolecules",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"predictions": {
+			"module": "src.matrixdb.pipelines.build.load.load_ppi_prediction_data"
 		},
 		"missing_proteins": {
 			"module": "src.matrixdb.pipelines.build.load.load_missing_proteins",
@@ -122,6 +193,9 @@
 				"port": "27018",
 				"database": "matrixdb_4_0"
 			}
+		},
+		"pubmed": {
+			"module": "src.matrixdb.pipelines.build.load.load_pubmed_summeries"
 		}
 	},
 	"log": {

@@ -1,5 +1,7 @@
 import json
 import time
+
+
 from lxml import etree
 import gzip
 
@@ -32,24 +34,19 @@ def parse_single_element(element):
 
 
 filter_species_list = [
-    "394",
     "984",
     "7955",
     "9606",
     "9615",
     "9823",
     "9913",
-    "9986",
     "9940",
-    "44689",
     "9031",
-    "9615",
+    "9986",
     "10090",
     "10116",
     "10144",
-    "11686",
-    "11696",
-    "39053"
+    "44689"
 ]
 
 start_time = time.time()

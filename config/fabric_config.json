@@ -1,0 +1,154 @@
+{
+	"release": {
+		"data": "4.0"
+	},
+	"dependencies" : {
+		"go": {
+			"version": "",
+			"raw": "",
+			"source": "",
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"uberon": {
+			"version": "",
+			"raw": "",
+			"source": "",
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"bto": {
+			"version": "",
+			"raw": "",
+			"source": "",
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"psimi": {
+			"version": "",
+			"raw": "",
+			"source": "",
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"ncbi_taxonomy": {
+			"version": "2024_01",
+			"source": ""
+		},
+		"reactome": {
+			"version": "2024_09",
+			"terms": "/scratch/PIG/matrix-db/data/external/reactome/ReactomePathways.txt",
+			"complexes": "/scratch/PIG/matrix-db/data/external/reactome/ComplexParticipantsPubMedIdentifiers_human.txt"
+		},
+		"core": {
+			"version": "2024_01",
+			"raw": "/scratch/PIG/matrix-db/data-integration/data/custom_biomolecules.tsv",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-core"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"uniprot": {
+			"version": "2024_01",
+			"source": {
+				"type": "file",
+				"location": "/scratch/PIG/matrix-db/data/external/uniprot/jan-2024/uniprot_sprot.xml.gz"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			}
+		},
+		"intact": {
+			"version": "2023_08",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		},
+		"matrisome_proteins": {
+			"version": "2018",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		}
+	},
+	"pipelines": {
+		"meta": {
+			"module": "src.matrixdb.pipelines.build.load.load_meta_data"
+		},
+		"uniprot": {
+			"module": "src.matrixdb.pipelines.fabric.load.fabric_load_uniprot"
+		},
+		"core": {
+			"module": "src.matrixdb.pipelines.build.load.load_core_data"
+		},
+		"matrisome_proteins": {
+			"module": "src.matrixdb.pipelines.build.load.load_matrisome_protein_data"
+		},
+		"intact": {
+			"module": "src.matrixdb.pipelines.build.load.load_intact_data"
+		},
+		"missing_proteins": {
+			"module": "src.matrixdb.pipelines.build.load.load_missing_proteins",
+			"source": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb-data-fabric"
+			},
+			"target": {
+				"type": "database",
+				"host": "localhost:27018",
+				"port": "27018",
+				"database": "matrixdb_4_0"
+			}
+		}
+	},
+	"log": {
+		"location" : "/scratch/PIG/matrix-db/data-integration/logs/"
+	}
+}
